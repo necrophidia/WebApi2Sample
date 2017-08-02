@@ -1,0 +1,149 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Web API 2 Sample</title>
+
+    <link rel="stylesheet" href="App_Themes/Sample/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="App_Themes/Sample/css/cover.css" />
+</head>
+<body>
+    <div class="site-wrapper">
+
+        <div class="site-wrapper-inner">
+
+            <div class="cover-container">
+
+                <div class="masthead clearfix">
+                    <div class="inner">
+                        <h3 class="masthead-brand">Web API 2 Sample</h3>
+                        <nav class="nav nav-masthead">
+                            <a class="nav-link active" target="_blank" href="https://docs.microsoft.com/en-us/aspnet/web-api/overview/getting-started-with-aspnet-web-api/tutorial-your-first-web-api">Reference</a>
+                        </nav>
+                    </div>
+                </div>
+
+                <div class="inner cover">
+                    <h1 class="cover-heading">Learn the most basic Web API 2</h1>
+                    <p class="lead">Simply trigger button below to get posts api from /api/posts</p>
+                    <p class="lead">
+                        <a href="#" id="ret_all" class="btn btn-lg btn-secondary">Retrieve All Post</a>
+                    </p>
+                    <p class="lead">Or trigger button below to get post api from /api/post/{id}
+                        <br />(available id only 1, 2, or 3)</p>
+                    <div class="lead">
+                        <div class="row">
+                            <div class="col-lg-6 mast-offset">
+                                <div class="input-group">
+                                    <input type="text" id="ret_id" class="form-control mast-input" placeholder="Enter Post Id...">
+                                    <a href="#" id="ret_single" class="btn btn-lg btn-secondary">Retrieve Single Post</a>
+                                </div><!-- /input-group -->
+                            </div><!-- /.col-lg-6 -->
+                            <div class="clearfix"></div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div id="res_modal" class="modal fade" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <p>API Call Result(s) for <span id="res_url"></span></p>
+                    <div id="res_content" class="list-group"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+
+    <div id="warn_modal" class="modal fade" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <p>Post ID Cannot Be Empty</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+
+    <div id="err_modal" class="modal fade" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <p>Cannot Communicate with Web API just now</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+
+    <script type="text/javascript" src="App_Themes/Sample/js/jquery-2.0.3.min.js"></script>
+    <script type="text/javascript" src="App_Themes/Sample/js/tether.min.js"></script>
+    <script type="text/javascript" src="App_Themes/Sample/js/bootstrap.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#ret_all').on('click', function (event) {
+                $.getJSON('api/posts').done(function (data) {
+                    $('#res_url').text('/api/posts');
+                    var result_html = '';
+                    $.each(data, function (key, item) {
+                        result_html += '<a href="#" class="list-group-item">';
+                        result_html += '<h4 class="list-group-item-heading">' + item.Name + '</h4>';
+                        result_html += '<p class="list-group-item-text">' + item.Content + '</p></a>';
+                    });
+                    $('#res_content').html(result_html);
+                    $('a.list-group-item').each(function () {
+                        $(this).on('click', function (event) {
+                            $('.list-group-item').removeClass('active');
+                            $(this).addClass('active');
+                            event.preventDefault();
+                        });
+                    });
+                    $('#res_modal').modal();
+                }).fail(function (jqXHR, textStatus, err) {
+                    console.log(err);
+                    $('#err_modal').modal();
+                });
+                event.preventDefault();
+            });
+
+            $('#ret_single').on('click', function (event) {
+                var post_id = $('#ret_id').val();
+                if (post_id !== '') {
+                    $.getJSON('api/post/' + post_id).done(function (data) {
+                        $('#res_url').text('/api/post/' + post_id);
+                        var result_html = '<a href="#" class="list-group-item">';
+                        result_html += '<h4 class="list-group-item-heading">' + data.Name + '</h4>';
+                        result_html += '<p class="list-group-item-text">' + data.Content + '</p></a>';
+                        $('#res_content').html(result_html);
+                        $('a.list-group-item').each(function () {
+                            $(this).on('click', function (event) {
+                                event.preventDefault();
+                            });
+                        });
+                        $('#res_modal').modal();
+                    }).fail(function (jqXHR, textStatus, err) {
+                        console.log(err);
+                        $('#err_modal').modal();
+                    });
+                } else {
+                    $('#warn_modal').modal();
+                }
+                event.preventDefault();
+            });
+        });
+    </script>
+</body>
+</html>
